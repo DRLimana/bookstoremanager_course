@@ -1,6 +1,7 @@
 package com.dlimana.bookstoremanager.author.entity;
 
 import com.dlimana.bookstoremanager.books.entity.Book;
+import com.dlimana.bookstoremanager.entity.Auditable;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -8,7 +9,7 @@ import java.util.List;
 
 @Data
 @Entity
-public class Author {
+public class Author extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
