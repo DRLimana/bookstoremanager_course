@@ -22,7 +22,7 @@ public class Author extends Auditable {
     private int age;
 
     /*
-    FetchType.LAZY = reduz a quantidade de dados quando for fazer uma consulta, sem mostrar dados de tabelas relacionadas ao mesmo.
+    FetchType.LAZY = reduza a quantidade de dados quando for fazer uma consulta, sem mostrar dados de tabelas relacionadas ao mesmo.
     FetchType.EAGER = mostra as informações da tabela no qual está o relacionamento, fazendo um JOIN.
     */
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
