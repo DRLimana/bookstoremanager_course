@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/authors")
@@ -16,6 +17,7 @@ public class AuthorController implements AuthorControllerDocs{
 
     @Autowired
     public AuthorController(AuthorService authorService) {
+
         this.authorService = authorService;
     }
 
@@ -33,6 +35,12 @@ public class AuthorController implements AuthorControllerDocs{
         Por padrao é retornado o estado 200 quando uma chamada é feita com sucesso.
     */
     public AuthorDTO findById(@PathVariable Long id) {
+
         return authorService.findById(id);
+    }
+
+    @GetMapping
+    public List<AuthorDTO> findAll() {
+        return authorService.findAll();
     }
 }
