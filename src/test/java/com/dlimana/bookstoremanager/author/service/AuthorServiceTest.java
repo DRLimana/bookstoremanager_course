@@ -3,6 +3,7 @@ package com.dlimana.bookstoremanager.author.service;
 import com.dlimana.bookstoremanager.author.builder.AuthorDTOBuilder;
 import com.dlimana.bookstoremanager.author.dto.AuthorDTO;
 import com.dlimana.bookstoremanager.author.entity.Author;
+import com.dlimana.bookstoremanager.author.exception.AuthorNotFoundException;
 import com.dlimana.bookstoremanager.author.mapper.AuthorMapper;
 import com.dlimana.bookstoremanager.author.repository.AuthorRepository;
 import com.dlimana.bookstoremanager.author.service.exception.AuthorAlreadyExistsException;
@@ -64,5 +65,27 @@ public class AuthorServiceTest {
                 .thenReturn(Optional.of(expectedCreatedAuthor));
 
         assertThrows(AuthorAlreadyExistsException.class, () -> authorService.create(expectedAuthorToCreateDTO));
+    }
+
+    @Test
+    void whenValidIdIsGivenThenAnAuthorShouldBeReturned() {
+        AuthorDTO expectedFoundAuthorDTO = authorDTOBuilder.buildAuthorDTO();
+        Author expectedFoundAuthor = authorMapper.toModel(expectedFoundAuthorDTO);
+
+        when(authorRepository.findById(expectedFoundAuthorDTO.getId())).thenReturn(Optional.of(expectedFoundAuthor));
+
+        AuthorDTO foundAuthorDTO = authorService.findById(expectedFoundAuthorDTO.getId());
+
+        assertThat(foundAuthorDTO, is(equalTo(expectedFoundAuthorDTO)));
+
+    }
+
+    @Test
+    void whenInvalidIdIsGivenThenAnExceptionShouldBeThrown() {
+        AuthorDTO expectedFoundAuthorDTO = authorDTOBuilder.buildAuthorDTO();
+
+        when(authorRepository.findById(expectedFoundAuthorDTO.getId())).thenReturn(Optional.empty());
+
+        assertThrows(AuthorNotFoundException.class, () -> authorService.findById(expectedFoundAuthorDTO.getId()));
     }
 }
