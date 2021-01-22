@@ -14,6 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableJpaAuditing
+@EnableSwagger2
 public class SwaggerConfig {
 
     private static final String BASE_PACKAGE = "com.dlimana.bookstoremanager";
