@@ -3,6 +3,7 @@ package com.dlimana.bookstoremanager.author.service;
 
 import com.dlimana.bookstoremanager.author.dto.AuthorDTO;
 import com.dlimana.bookstoremanager.author.entity.Author;
+import com.dlimana.bookstoremanager.author.exception.AuthorNotFoundException;
 import com.dlimana.bookstoremanager.author.mapper.AuthorMapper;
 import com.dlimana.bookstoremanager.author.repository.AuthorRepository;
 import com.dlimana.bookstoremanager.author.service.exception.AuthorAlreadyExistsException;
@@ -28,6 +29,12 @@ public class AuthorService {
         Author authorToCreate = authorMapper.toModel(authorDTO);
         Author createdAuthor = authorRepository.save(authorToCreate);
         return authorMapper.toDTO(createdAuthor);
+    }
+
+    public AuthorDTO findById(Long id){
+        Author foundAuthor = authorRepository.findById(id)
+                .orElseThrow(() -> new AuthorNotFoundException(id));
+        return authorMapper.toDTO(foundAuthor);
     }
 
     private void verifyIfExists(String authorName) {

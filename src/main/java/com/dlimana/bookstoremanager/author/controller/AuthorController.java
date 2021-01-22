@@ -22,6 +22,17 @@ public class AuthorController implements AuthorControllerDocs{
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AuthorDTO create(@RequestBody @Valid AuthorDTO authorDTO) {
+
         return authorService.create(authorDTO);
+    }
+
+    @GetMapping("/{id}")
+    /*
+        PathVariable serve para passar uma variável na requisição da chamada.
+
+        Por padrao é retornado o estado 200 quando uma chamada é feita com sucesso.
+    */
+    public AuthorDTO findById(@PathVariable Long id) {
+        return authorService.findById(id);
     }
 }
