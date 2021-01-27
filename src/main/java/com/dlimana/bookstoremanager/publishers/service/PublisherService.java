@@ -3,6 +3,7 @@ package com.dlimana.bookstoremanager.publishers.service;
 import com.dlimana.bookstoremanager.publishers.dto.PublisherDTO;
 import com.dlimana.bookstoremanager.publishers.entity.Publisher;
 import com.dlimana.bookstoremanager.publishers.exception.PublisherAlreadyExistsException;
+import com.dlimana.bookstoremanager.publishers.exception.PublisherNotFoundException;
 import com.dlimana.bookstoremanager.publishers.mapper.PublisherMapper;
 import com.dlimana.bookstoremanager.publishers.repository.PublisherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,12 @@ public class PublisherService {
         Publisher createdPublisher = publisherRepository.save(publisherToCreate);
 
         return publisherMapper.toDTO(createdPublisher);
+    }
+
+    public PublisherDTO findById(Long id){
+        return publisherRepository.findById(id)
+                .map(publisherMapper::toDTO)
+                .orElseThrow(() -> new PublisherNotFoundException(id));
     }
 
     private void verifyIfExists(String name, String code) {
