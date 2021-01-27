@@ -19,9 +19,9 @@ import java.util.Collections;
 
 import static com.dlimana.bookstoremanager.utils.JsonConversionUtils.asJSonString;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,7 +52,6 @@ public class PublisherControllerTest {
 
     @Test
     void whenPOSTIsCalledThenCreatedStatusShouldBeInformed() throws Exception {
-
         PublisherDTO expectedCreatedPublisherDTO = publisherDTOBuilder.buildPublisherDTO();
 
         when(publisherService.create(expectedCreatedPublisherDTO)).thenReturn(expectedCreatedPublisherDTO);
@@ -68,7 +67,6 @@ public class PublisherControllerTest {
 
     @Test
     void whenPOSTIsCalledWithoutRequiredFieldsThenBadRequestStatusShouldBeInformed() throws Exception {
-
         PublisherDTO expectedCreatedPublisherDTO = publisherDTOBuilder.buildPublisherDTO();
 
         expectedCreatedPublisherDTO.setName(null);
@@ -81,7 +79,6 @@ public class PublisherControllerTest {
 
     @Test
     void whenGETWithValidIdIsCalledThenOKStatusShouldBeInformed() throws Exception {
-
         PublisherDTO expectedCreatedPublisherDTO = publisherDTOBuilder.buildPublisherDTO();
         Long expectedCreatedPublisherDTOId = expectedCreatedPublisherDTO.getId();
 
@@ -97,7 +94,6 @@ public class PublisherControllerTest {
 
     @Test
     void whenGETListIsCalledThenOKStatusShouldBeInformed() throws Exception {
-
         PublisherDTO expectedCreatedPublisherDTO = publisherDTOBuilder.buildPublisherDTO();
 
         when(publisherService.findAll()).thenReturn(Collections.singletonList(expectedCreatedPublisherDTO));
@@ -108,5 +104,17 @@ public class PublisherControllerTest {
                 .andExpect(jsonPath("$[0].id", is(expectedCreatedPublisherDTO.getId().intValue())))
                 .andExpect(jsonPath("$[0].name", is(expectedCreatedPublisherDTO.getName())))
                 .andExpect(jsonPath("$[0].code", is(expectedCreatedPublisherDTO.getCode())));
+    }
+
+    @Test
+    void whenDELETEIsCalledThenNoContentStatusShouldBeInformed() throws Exception {
+        PublisherDTO expectedPublisherToDelete = publisherDTOBuilder.buildPublisherDTO();
+        Long expectedPublisherIdToDelete = expectedPublisherToDelete.getId();
+
+        doNothing().when(publisherService).delete(expectedPublisherIdToDelete);
+
+        mockMvc.perform(delete(PUBLISHERS_API_URL_PATH + "/" + expectedPublisherIdToDelete)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }
