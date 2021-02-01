@@ -4,7 +4,6 @@ import com.dlimana.bookstoremanager.users.builder.UserDTOBuilder;
 import com.dlimana.bookstoremanager.users.dto.MessageDTO;
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
 import com.dlimana.bookstoremanager.users.service.UserService;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,9 +16,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import static com.dlimana.bookstoremanager.utils.JsonConversionUtils.asJSonString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -71,5 +72,16 @@ public class UserControllerTest {
                 .contentType(APPLICATION_JSON)
                 .content(asJSonString(expectedUserToCreatedDTO)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void whenDELETEIsCalledThenNoContentShouldBeInformed() throws Exception {
+        UserDTO expectedUserToDeleteDTO = userDTOBuilder.buildUserDTO();
+
+        doNothing().when(userService).delete(expectedUserToDeleteDTO.getId());
+
+        mockMvc.perform(delete(USERS_API_URL_PATH + "/" + expectedUserToDeleteDTO.getId())
+                .contentType(APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 }
