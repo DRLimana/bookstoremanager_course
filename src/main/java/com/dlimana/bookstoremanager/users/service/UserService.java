@@ -4,11 +4,13 @@ import com.dlimana.bookstoremanager.users.dto.MessageDTO;
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
 import com.dlimana.bookstoremanager.users.entity.User;
 import com.dlimana.bookstoremanager.users.exception.UserAlreadyExistsException;
+import com.dlimana.bookstoremanager.users.exception.UserNotFoundException;
 import com.dlimana.bookstoremanager.users.mapper.UserMapper;
 import com.dlimana.bookstoremanager.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Optional;
 
 @Service
@@ -27,6 +29,16 @@ public class UserService {
         User userToCreate = userMapper.toModel(userToCreateDTO);
         User createdUser = userRepository.save(userToCreate);
         return creationMessage(createdUser);
+    }
+
+    public void delete(Long id){
+        veriftIfExists(id);
+        userRepository.deleteById(id);
+    }
+
+    private void veriftIfExists(Long id) {
+        userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     private void verifyIfExsits(String email, String username) {
