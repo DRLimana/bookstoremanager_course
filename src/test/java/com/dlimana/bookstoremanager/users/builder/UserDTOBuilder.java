@@ -2,6 +2,7 @@ package com.dlimana.bookstoremanager.users.builder;
 
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
 import com.dlimana.bookstoremanager.users.enums.Gender;
+import com.dlimana.bookstoremanager.users.enums.Role;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 
@@ -37,6 +38,9 @@ public class UserDTOBuilder {
     @Builder.Default
     private LocalDate birthDate= LocalDate.of(1995, 8,9);
 
+    @Builder.Default
+    private Role role = Role.USER;
+
     public UserDTO buildUserDTO(){
         return new UserDTO(id,
                 name,
@@ -45,6 +49,7 @@ public class UserDTOBuilder {
                 email,
                 username,
                 password,
-                birthDate);
+                birthDate,
+                role);
     }
 }
