@@ -18,8 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -91,5 +90,30 @@ public class UserServiceTest {
         when(userRepository.findById(expectedDeletedUserId)).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> userService.delete(expectedDeletedUserId));
+    }
+
+    @Test
+    void whenExistingUserIsInformedThenItShouldBeUpdated() {
+        UserDTO expectedUpdatedUserDTO = userDTOBuilder.buildUserDTO();
+        expectedUpdatedUserDTO.setUsername("danielupdate");
+        User expectedUpdatedUser = userMapper.toModel(expectedUpdatedUserDTO);
+        String expectedUpdatedMessage = "User danielupdate with ID 1 successfully updated";
+
+        when(userRepository.findById(expectedUpdatedUserDTO.getId())).thenReturn(Optional.of(expectedUpdatedUser));
+        when(userRepository.save(expectedUpdatedUser)).thenReturn(expectedUpdatedUser);
+
+        MessageDTO successUpdatedMessage = userService.update(expectedUpdatedUserDTO.getId(), expectedUpdatedUserDTO);
+
+        assertThat(successUpdatedMessage.getMessage(), is(equalToObject(expectedUpdatedMessage)));
+    }
+
+    @Test
+    void whenNotExistingUserIsInformedThenAnExceptionShouldBeThrown() {
+        UserDTO expectedUpdatedUserDTO = userDTOBuilder.buildUserDTO();
+        expectedUpdatedUserDTO.setUsername("danielupdate");
+
+        when(userRepository.findById(expectedUpdatedUserDTO.getId())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.update(expectedUpdatedUserDTO.getId(), expectedUpdatedUserDTO));
     }
 }

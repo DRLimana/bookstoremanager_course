@@ -10,8 +10,10 @@ import com.dlimana.bookstoremanager.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.Optional;
+
+import static com.dlimana.bookstoremanager.users.utils.MessageDTOUtils.creationMessage;
+import static com.dlimana.bookstoremanager.users.utils.MessageDTOUtils.updateMessage;
 
 @Service
 public class UserService {
@@ -31,13 +33,24 @@ public class UserService {
         return creationMessage(createdUser);
     }
 
+    public MessageDTO update(Long id, UserDTO userToUpdateDTO){
+        User foundUser = verifyAndGetIfExists(id);
+
+        userToUpdateDTO.setId(foundUser.getId());
+        User userToUpdate = userMapper.toModel(userToUpdateDTO);
+        userToUpdate.setCreatedDate(foundUser.getCreatedDate());
+
+        User updateUser = userRepository.save(userToUpdate);
+        return updateMessage(updateUser);
+    }
+
     public void delete(Long id){
-        veriftIfExists(id);
+        verifyAndGetIfExists(id);
         userRepository.deleteById(id);
     }
 
-    private void veriftIfExists(Long id) {
-        userRepository.findById(id)
+    private User verifyAndGetIfExists(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
@@ -46,14 +59,5 @@ public class UserService {
         if(foundUser.isPresent()){
             throw new UserAlreadyExistsException(email, username);
         }
-    }
-
-    private MessageDTO creationMessage(User createdUser) {
-        String createdUserName = createdUser.getUsername();
-        Long createdId = createdUser.getId();
-        String createdUserMessage = String.format("User %s with ID %s successfully created", createdUserName, createdId);
-        return MessageDTO.builder()
-                .message(createdUserMessage)
-                .build();
     }
 }
