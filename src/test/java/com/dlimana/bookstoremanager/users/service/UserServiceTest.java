@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -29,6 +30,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService userService;
@@ -49,6 +53,7 @@ public class UserServiceTest {
         String expectedUsername = expectedCreatedUserDTO.getUsername();
 
         when(userRepository.findByEmailOrUsername(expectedUserEmail, expectedUsername)).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(expectedCreatedUser.getPassword())).thenReturn(expectedCreatedUser.getPassword());
         when(userRepository.save(expectedCreatedUser)).thenReturn(expectedCreatedUser);
 
         MessageDTO creationMessage = userService.create(expectedCreatedUserDTO);
@@ -100,6 +105,7 @@ public class UserServiceTest {
         String expectedUpdatedMessage = "User danielupdate with ID 1 successfully updated";
 
         when(userRepository.findById(expectedUpdatedUserDTO.getId())).thenReturn(Optional.of(expectedUpdatedUser));
+        when(passwordEncoder.encode(expectedUpdatedUser.getPassword())).thenReturn(expectedUpdatedUser.getPassword());
         when(userRepository.save(expectedUpdatedUser)).thenReturn(expectedUpdatedUser);
 
         MessageDTO successUpdatedMessage = userService.update(expectedUpdatedUserDTO.getId(), expectedUpdatedUserDTO);
