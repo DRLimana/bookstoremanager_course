@@ -1,5 +1,7 @@
 package com.dlimana.bookstoremanager.users.controller;
 
+import com.dlimana.bookstoremanager.users.dto.JwtRequest;
+import com.dlimana.bookstoremanager.users.dto.JwtResponse;
 import com.dlimana.bookstoremanager.users.dto.MessageDTO;
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
 import io.swagger.annotations.Api;
@@ -30,4 +32,11 @@ public interface UserControllerDocs {
             @ApiResponse(code = 400, message = "Missing required field, or an error on validation field rules.")
     })
     MessageDTO update(Long id, UserDTO userToUpdateDTO);
+
+    @ApiOperation(value = "User authentication operation")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Success user authenticated"),
+            @ApiResponse(code = 404, message = "User not found")
+    })
+    JwtResponse createAuthenticationToken(JwtRequest jwtRequest);
 }

@@ -1,7 +1,10 @@
 package com.dlimana.bookstoremanager.users.controller;
 
+import com.dlimana.bookstoremanager.users.dto.JwtRequest;
+import com.dlimana.bookstoremanager.users.dto.JwtResponse;
 import com.dlimana.bookstoremanager.users.dto.MessageDTO;
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
+import com.dlimana.bookstoremanager.users.service.AuthenticationService;
 import com.dlimana.bookstoremanager.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,9 +18,12 @@ public class UserController implements UserControllerDocs{
 
     private UserService userService;
 
+    private AuthenticationService authenticationService;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, AuthenticationService authenticationService) {
         this.userService = userService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping
@@ -35,5 +41,10 @@ public class UserController implements UserControllerDocs{
     @PutMapping("/{id}")
     public MessageDTO update(@PathVariable Long id, @RequestBody @Valid UserDTO userToUpdateDTO) {
         return userService.update(id, userToUpdateDTO);
+    }
+
+    @PostMapping(value = "/authenticate")
+    public JwtResponse createAuthenticationToken(@RequestBody @Valid JwtRequest jwtRequest) {
+        return authenticationService.createAuthenticationToken(jwtRequest);
     }
 }

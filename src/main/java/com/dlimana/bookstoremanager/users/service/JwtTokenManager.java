@@ -18,7 +18,9 @@ public class JwtTokenManager {
     private Long  jwtTokenValidity;
     private String secret;
 
-    public JwtTokenManager(@Value("${jwt.validiy}") Long jwtTokenValidity, @Value("${jwt.secret}") String secret) {
+    public JwtTokenManager(
+            @Value("${jwt.validity}") Long jwtTokenValidity,
+            @Value("${jwt.secret}") String secret) {
         this.jwtTokenValidity = jwtTokenValidity;
         this.secret = secret;
     }
@@ -50,11 +52,10 @@ public class JwtTokenManager {
     }
 
     private Claims getAllClaimsForToken(String token) {
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
-        return claims;
     }
 
     //validação do token
