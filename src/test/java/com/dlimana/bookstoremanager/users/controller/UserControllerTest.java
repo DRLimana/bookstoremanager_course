@@ -1,8 +1,12 @@
 package com.dlimana.bookstoremanager.users.controller;
 
+import com.dlimana.bookstoremanager.users.builder.JwtRequestBuilder;
 import com.dlimana.bookstoremanager.users.builder.UserDTOBuilder;
+import com.dlimana.bookstoremanager.users.dto.JwtRequest;
+import com.dlimana.bookstoremanager.users.dto.JwtResponse;
 import com.dlimana.bookstoremanager.users.dto.MessageDTO;
 import com.dlimana.bookstoremanager.users.dto.UserDTO;
+import com.dlimana.bookstoremanager.users.service.AuthenticationService;
 import com.dlimana.bookstoremanager.users.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +37,20 @@ public class UserControllerTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private AuthenticationService authenticationService;
+
     @InjectMocks
     private UserController userController;
 
     private UserDTOBuilder userDTOBuilder;
 
+    private JwtRequestBuilder jwtRequestBuilder;
+
     @BeforeEach
     void setUp() {
         userDTOBuilder = UserDTOBuilder.builder().build();
+        jwtRequestBuilder = JwtRequestBuilder.builder().build();
         mockMvc = MockMvcBuilders.standaloneSetup(userController)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setViewResolvers((s, locale) -> new MappingJackson2JsonView())
@@ -99,5 +109,31 @@ public class UserControllerTest {
                 .content(asJSonString(expectedUserToUpdatedDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is(expectedUpdatedMessage)));
+    }
+
+    @Test
+    void whenPOSTIsCalledToAuthenticateUserThenOkShouldBeReturned() throws Exception {
+        JwtRequest jwtRequest = jwtRequestBuilder.buildJwtRequest();
+        JwtResponse jwtResponse = JwtResponse.builder().jwtToken("fakeToken").build();
+
+        when(authenticationService.createAuthenticationToken(jwtRequest)).thenReturn(jwtResponse);
+
+        mockMvc.perform(post(USERS_API_URL_PATH + "/authenticate")
+                .contentType(APPLICATION_JSON)
+                .content(asJSonString(jwtRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.jwtToken", is(jwtResponse.getJwtToken())));
+    }
+
+    @Test
+    void whenPOSTIsCalledToAuthenticateUserWithoutPasswordThenBadRequestShouldBeReturned() throws Exception {
+        JwtRequest jwtRequest = jwtRequestBuilder.buildJwtRequest();
+        jwtRequest.setPassword(null);
+
+
+        mockMvc.perform(post(USERS_API_URL_PATH + "/authenticate")
+                .contentType(APPLICATION_JSON)
+                .content(asJSonString(jwtRequest)))
+                .andExpect(status().isBadRequest());
     }
 }
