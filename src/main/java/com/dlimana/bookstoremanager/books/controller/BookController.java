@@ -11,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 // definição do caminho url
@@ -38,4 +39,10 @@ public class BookController implements BookControllerDocs {
             @PathVariable Long bookId) {
         return bookService.findByIdAndUser(authenticatedUser, bookId);
     }
+
+    @GetMapping
+    public List<BookResponseDTO> findAllByUser(@AuthenticationPrincipal AuthenticatedUser authenticatedUser) {
+        return bookService.findAllByUser(authenticatedUser);
+    }
 }
+
