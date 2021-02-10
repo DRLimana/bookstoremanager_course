@@ -6,6 +6,7 @@ import com.dlimana.bookstoremanager.books.dto.BookRequestDTO;
 import com.dlimana.bookstoremanager.books.dto.BookResponseDTO;
 import com.dlimana.bookstoremanager.books.entity.Book;
 import com.dlimana.bookstoremanager.books.exception.BookAlreadyExistsException;
+import com.dlimana.bookstoremanager.books.exception.BookNotFoundException;
 import com.dlimana.bookstoremanager.books.mapper.BookMapper;
 import com.dlimana.bookstoremanager.books.repository.BookRepository;
 import com.dlimana.bookstoremanager.publishers.entity.Publisher;
@@ -32,6 +33,7 @@ public class BookService {
     private PublisherService publisherService;
 
     public BookResponseDTO create(AuthenticatedUser authenticatedUser, BookRequestDTO bookRequestDTO){
+        //verifica se o usuário existe no sistema
         User foundAuthenticationUser = userService.verifyAndGetUserIfExists(authenticatedUser.getUsername());
         verifyIfBookIsAlreadyRegistered(foundAuthenticationUser, bookRequestDTO);
 
@@ -44,6 +46,13 @@ public class BookService {
         bookToSave.setPublisher(foundPublisher);
         Book saveBook = bookRepository.save(bookToSave);
         return bookMapper.toDTO(saveBook);
+    }
+
+    public BookResponseDTO findByIdAndUser(AuthenticatedUser authenticatedUser, Long bookId){
+        User foundAuthenticationUser = userService.verifyAndGetUserIfExists(authenticatedUser.getUsername());
+        return bookRepository.findByIdAndUser(bookId, foundAuthenticationUser)
+                .map(bookMapper::toDTO)
+                .orElseThrow(() -> new BookNotFoundException(bookId));
     }
 
     private void verifyIfBookIsAlreadyRegistered(User foundUser, BookRequestDTO bookRequestDTO) {
