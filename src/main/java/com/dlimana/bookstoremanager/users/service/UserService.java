@@ -8,9 +8,11 @@ import com.dlimana.bookstoremanager.users.exception.UserNotFoundException;
 import com.dlimana.bookstoremanager.users.mapper.UserMapper;
 import com.dlimana.bookstoremanager.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.dlimana.bookstoremanager.users.utils.MessageDTOUtils.creationMessage;
@@ -66,5 +68,10 @@ public class UserService {
         if(foundUser.isPresent()){
             throw new UserAlreadyExistsException(email, username);
         }
+    }
+
+    public User verifyAndGetUserIfExists(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
     }
 }
