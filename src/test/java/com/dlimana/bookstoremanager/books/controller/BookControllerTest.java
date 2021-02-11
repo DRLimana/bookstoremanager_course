@@ -6,8 +6,6 @@ import com.dlimana.bookstoremanager.books.dto.BookRequestDTO;
 import com.dlimana.bookstoremanager.books.dto.BookResponseDTO;
 import com.dlimana.bookstoremanager.books.service.BookService;
 import com.dlimana.bookstoremanager.users.dto.AuthenticatedUser;
-import com.dlimana.bookstoremanager.utils.JsonConversionUtils;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,24 +13,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
 import java.util.Collections;
 
-import static com.dlimana.bookstoremanager.utils.JsonConversionUtils.*;
-import static org.hamcrest.Matchers.*;
+import static com.dlimana.bookstoremanager.utils.JsonConversionUtils.asJSonString;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.MediaType.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 public class BookControllerTest {
@@ -98,7 +94,7 @@ public class BookControllerTest {
 
         when(bookService.findByIdAndUser(any(AuthenticatedUser.class), eq(expectedBookToFindDTO.getId()))).thenReturn(expectedFoundBookDTO);
 
-        mockMvc.perform(get(BOOKS_API_URL_PATH + "/" +expectedBookToFindDTO.getId())
+        mockMvc.perform(get(BOOKS_API_URL_PATH + "/" + expectedBookToFindDTO.getId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(expectedFoundBookDTO.getId().intValue())))
@@ -126,8 +122,29 @@ public class BookControllerTest {
 
         doNothing().when(bookService).deleteByIdAndUser(any(AuthenticatedUser.class), eq(expectedBookToDeleteDTO.getId()));
 
-        mockMvc.perform(delete(BOOKS_API_URL_PATH + "/" +expectedBookToDeleteDTO.getId())
+        mockMvc.perform(delete(BOOKS_API_URL_PATH + "/" + expectedBookToDeleteDTO.getId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void whenPUTIsCalledThenOkStatusShouldBeReturned() throws Exception {
+        BookRequestDTO expectedBookToUpdatedDTO = bookRequestDTOBuilder.buildRequestBookDTO();
+        BookResponseDTO expectedUpdatedBookDTO = bookResponseDTOBuilder.buildBookResponse();
+
+        when(bookService.updateByIdAndUser(
+                any(AuthenticatedUser.class),
+                eq(expectedBookToUpdatedDTO.getId()),
+                eq(expectedBookToUpdatedDTO))).thenReturn(expectedUpdatedBookDTO);
+
+        mockMvc.perform(put(BOOKS_API_URL_PATH + "/" + expectedBookToUpdatedDTO.getId())
+                .contentType(APPLICATION_JSON)
+                .content(asJSonString(expectedBookToUpdatedDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(expectedUpdatedBookDTO.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(expectedUpdatedBookDTO.getName())))
+                .andExpect(jsonPath("$.isbn", is(expectedUpdatedBookDTO.getIsbn())));
+
+    }
+
 }
